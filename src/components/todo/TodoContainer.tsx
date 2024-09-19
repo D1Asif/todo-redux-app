@@ -1,9 +1,11 @@
+import { useAppSelector } from "@/redux/hook";
 import AddTodoModal from "./AddTodoModal";
 import TodoCard from "./TodoCard";
 import TodoFilter from "./TodoFilter";
 
 
 export default function TodoContainer() {
+    const { todos } = useAppSelector((state) => state.todos);
     return (
         <div>
             <div className="flex justify-center gap-3 mb-5">
@@ -17,9 +19,11 @@ export default function TodoContainer() {
                 </p>
             </div> */}
                 <div className="bg-white p-5 rounded-lg space-y-3">
-                    <TodoCard />
-                    <TodoCard />
-                    <TodoCard />
+                    {
+                        todos.map((todo) => (
+                            <TodoCard todo={todo} />
+                        ))
+                    }
                 </div>
 
             </div>
