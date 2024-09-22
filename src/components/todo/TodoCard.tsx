@@ -1,24 +1,60 @@
-import { removeTodo, TTodo } from "@/redux/features/todoSlice";
+import { removeTodo, toggleComplete, TTodo } from "@/redux/features/todoSlice";
 import { Button } from "../ui/button";
 import { useAppDispatch } from "@/redux/hook";
+import { useDeleteTodoMutation, useUpdateTodoMutation } from "@/redux/api/api";
 
 type TTodoCardProps = {
     todo: TTodo
 }
 
-export default function TodoCard({todo}: TTodoCardProps) {
-    const dispatch = useAppDispatch();
+export default function TodoCard({ todo }: TTodoCardProps) {
+    // const dispatch = useAppDispatch();
+    const [deleteTodo, { isLoading, isError, isSuccess }] = useDeleteTodoMutation();
+    const [updateTodo, { isLoading: updateLoading }] = useUpdateTodoMutation();
+
+    const toggleState = () => {
+        // dispatch(toggleComplete(todo.id))
+        const taskData = {
+            title: todo.title,
+            description: todo.description,
+            priority: todo.priority,
+            isCompleted: !todo.isCompleted
+        }
+
+        const options = {
+            id: todo._id,
+            taskData
+        }
+
+        updateTodo(options);
+    }
 
     return (
         <div className="bg-white/30 rounded-md flex justify-between items-center p-3 border">
             <input
+                onClick={() => toggleState()}
+                className="mr-3"
+                onChange={toggleState}
+                checked={todo.isCompleted}
                 type="checkbox"
-                name=""
-                id=""
+                name="complete"
+                id="complete"
             />
-            <p className="font-semibold">{todo.title}</p>
-            <p>{todo.isCompleted ? "Done": "Pending"}</p>
-            <p>{todo.description}</p>
+            <p className="font-semibold flex-1">{todo.title}</p>
+            <div className="flex-1 flex gap-2 items-center">
+                <div className={`size-3 rounded-full
+                    ${todo.priority === "high" ? "bg-red-500" : null}
+                    ${todo.priority === "medium" ? "bg-yellow-500" : null}
+                    ${todo.priority === "low" ? "bg-green-500" : null}
+                    `} />
+                <p>{todo.priority}</p>
+            </div>
+            <div className="flex-1">{todo.isCompleted ? (
+                <p className="text-green-500">Done</p>
+            ) : (
+                <p className="text-red-500">Pending</p>
+            )}</div>
+            <p className="flex-[2]">{todo.description}</p>
             <div className="space-x-5">
                 <Button className="bg-blue-700">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -26,7 +62,7 @@ export default function TodoCard({todo}: TTodoCardProps) {
                     </svg>
                 </Button>
                 <Button
-                    onClick={() => dispatch(removeTodo(todo.id))} 
+                    onClick={() => deleteTodo(todo._id?.toString())}
                     className="bg-red-500"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
